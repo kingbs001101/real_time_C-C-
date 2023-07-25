@@ -1,0 +1,63 @@
+#include <iostream>
+#include <chrono>
+#include <random> // C++에서 사용 가능한 <random> 헤더 추가
+#include <thread> // this_thread 네임스페이스를 사용하기 위한 헤더 추가
+
+int main() {
+    int i, j, random_number;
+    auto start_time = std::chrono::high_resolution_clock::now(); // 시작 시간 기록
+
+    // std::random_device를 사용하여 시드(seed)생성
+    std::random_device rd;
+
+    // 시드 초기화
+    std::mt19937 mt(rd());
+
+    // 첫번째 for문을 통해 총 10번 반복
+    for (i = 1; i <= 10; i++) {
+        // 두번째 for문을 통해 랜덤 숫자 생성 및 출력, 10번 반복
+        for (j = 1; j <= 10; j++) {
+
+            // 시작 시간 기록
+            auto start_time_2 = std::chrono::high_resolution_clock::now(); 
+
+            // 시작 시간 출력
+            std::cout << "시간시작 : " << start_time_2.time_since_epoch().count() / 1e9 << " 초" << std::endl;
+
+            // 랜덤 숫자 생성
+            random_number = std::uniform_int_distribution<>(0, 99)(mt); 
+
+            // 랜덤 숫자 출력
+            std::cout << "랜덤 숫자 #" << (i - 1) * 10 + j << ": " << random_number << std::endl;
+           
+            // 종료 시간 기록
+            auto end_time_2 = std::chrono::high_resolution_clock::now(); 
+
+            // 종료 시간 출력
+            std::cout << "종료시간 : " << end_time_2.time_since_epoch().count() / 1e9 << " 초" << std::endl;
+            
+            // 실행 시간 계산
+            double duration_seconds = std::chrono::duration_cast<std::chrono::duration<double>>(end_time_2 - start_time_2).count();
+
+            // 실행 시간 출력
+            std::cout << duration_seconds << " 초" << std::endl;
+
+            // 남은 시간 대기
+            double sleep_time = 0.00001 - duration_seconds;
+            if (sleep_time > 0) {
+                std::this_thread::sleep_for(std::chrono::seconds(static_cast<long long>(sleep_time * 1e9)));
+            }
+        }
+
+        // 종료시간 기록
+        auto end_time = std::chrono::high_resolution_clock::now(); 
+
+        // 실행 시간 계산
+        double duration_seconds_total = std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time).count();
+        
+        // 실행 시간 출력
+        std::cout << "첫번째 for문의 " << i << "번째 반복 실행 시간: " << duration_seconds_total << " 초" << std::endl << std::endl;
+    }
+
+    return 0;
+}
