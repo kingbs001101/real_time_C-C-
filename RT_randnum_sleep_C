@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <Windows.h>
+
+int main_c(void) {
+    int i, j, random_number;
+    LARGE_INTEGER frequency, start_time_1, end_time_1, start_time_2, end_time_2;
+    double duration;
+
+    // 성능 카운터 주파수를 얻는다.
+    QueryPerformanceFrequency(&frequency);
+
+    // 1ms 대기 시간을 초 단위로 변환
+    double wait_time_seconds = 0.001;
+
+    // 첫번째 for문을 통해 총 10번 반복
+    for (i = 1; i <= 10; i++) {
+        // 시작 시간_2 기록
+        QueryPerformanceCounter(&start_time_1);
+
+        // 두번째 for문을 통해 랜덤 숫자 생성 및 출력, 10번 반복
+        for (j = 1; j <= 10; j++) {
+            // 시작 시간 기록
+            QueryPerformanceCounter(&start_time_2);
+            printf("시작시간: %lld\n", start_time_2.QuadPart);
+
+            // 랜덤 숫자 생성
+            random_number = rand() % 100; // 0부터 99까지의 랜덤 숫자 생성
+            printf("랜덤 숫자 #%d: %d\n", (i - 1) * 10 + j, random_number);
+
+            // 종료 시간_2 기록
+            QueryPerformanceCounter(&end_time_2);
+            printf("종료 시간: %lld\n", end_time_2.QuadPart);
+
+            // 실행 시간 계산
+            double elapsed_time = (double)(end_time_2.QuadPart - start_time_2.QuadPart) / frequency.QuadPart;
+            printf("처리시간 : %lfs\n", elapsed_time);
+
+            // 대기시간을 초 단위로 변환하여 비교
+            double wait_duration_seconds = wait_time_seconds - elapsed_time;
+            printf("대기시간 : %lfs\n\n", wait_duration_seconds);
+
+            // 1ms(밀리초) 대기
+            if (wait_duration_seconds > 0) {
+                Sleep(wait_duration_seconds);
+            }
+        }
+
+        // 종료 시간 기록
+        QueryPerformanceCounter(&end_time_1);
+
+        // 실행 시간 계산 및 출력
+        duration = (double)(end_time_1.QuadPart - start_time_1.QuadPart) / frequency.QuadPart;
+
+        printf("첫번째 for문의 %d번째 반복 실행 시간: %lf \n\n", i, duration);
+    }
+
+    return 0;
+}
